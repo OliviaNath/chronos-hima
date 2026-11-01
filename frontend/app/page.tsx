@@ -133,12 +133,14 @@ export default function Home() {
               }}
               className="bg-slate-900 border border-slate-700 px-3 py-1.5 rounded text-sm text-slate-200"
             >
-              {/* North Indian Presets */}
+              {/* North Indian & Indo-Gangetic Plains Presets */}
               <option value="30.4045,79.3240">Chamoli, Uttarakhand</option>
               <option value="32.2190,77.1887">Manali / Beas Basin, Himachal Pradesh</option>
               <option value="34.1526,77.5771">Leh / Indus Basin, Ladakh</option>
               <option value="34.0837,74.7973">Srinagar / Jhelum Basin, J&K</option>
               <option value="27.3389,88.6065">Teesta Basin, Sikkim</option>
+              <option value="25.5941,85.1376">Patna / Ganga-Kosi Basin, Bihar</option>
+              <option value="26.7606,83.3732">Gorakhpur / Rapti Basin, Uttar Pradesh</option>
               <option value="27.0410,88.2663">Darjeeling / Kalimpong, West Bengal</option>
               {/* International Transboundary Preset */}
               <option value="27.7172,85.3240">Kathmandu Basin, Nepal</option>
