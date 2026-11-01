@@ -19,11 +19,13 @@ app = FastAPI(
     version="1.0.0"
 )
 
-# CORS setup
-origins = os.getenv("CORS_ORIGINS", "*").split(",")
+# CORS setup - supports environment variable parsing or full wildcard fallbacks for production
+cors_origins_raw = os.getenv("CORS_ORIGINS", "*")
+origins = [origin.strip() for origin in cors_origins_raw.split(",") if origin.strip()]
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=origins if origins else ["*"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -47,7 +49,7 @@ async def ingest_coordinates(req: IngestRequest):
     if not (26.0 <= req.latitude <= 36.0) or not (74.0 <= req.longitude <= 90.0):
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
-            detail="Coordinates outside supported Nepal / Himalayan corridor (26°N-36°N, 74°E-89°E)."
+            detail="Coordinates outside supported Nepal / Himalayan corridor (26°N-36°N, 74°E-90°E)."
         )
     try:
         metric = await fetch_live_meteorology(req.latitude, req.longitude)
@@ -64,10 +66,11 @@ async def assess_risk(metric: MeteorologicalMetric):
 
 @app.post("/api/agent/run", response_model=EmergencyAdvisory)
 async def run_agent(req: IngestRequest):
-    if not (26.0 <= req.latitude <= 36.0) or not (74.0 <= req.longitude <= 89.0):
+    # Standardized bounding box check (26°N-36°N, 74°E-90°E)
+    if not (26.0 <= req.latitude <= 36.0) or not (74.0 <= req.longitude <= 90.0):
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
-            detail="Coordinates outside supported Nepal / Himalayan corridor."
+            detail="Coordinates outside supported Nepal / Himalayan corridor (26°N-36°N, 74°E-90°E)."
         )
     
     # 1. Fetch live metrics
@@ -131,4 +134,5 @@ async def copilot_query(req: CopilotQueryRequest):
 
 if __name__ == "__main__":
     import uvicorn
-    uvicorn.run("main:app", host="0.0.0.0", port=8000, reload=True)
+    port = int(os.getenv("PORT", 8000))
+    uvicorn.run("main:app", host="0.0.0.0", port=port, reload=True)
